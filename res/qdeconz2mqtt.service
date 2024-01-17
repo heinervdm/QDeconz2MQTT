@@ -1,0 +1,11 @@
+[Unit]
+Description=QDeconz2MQTT publishes deconz events to a MQTT broker.
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/QDeconz2MQTT --config /etc/qdeconz2mqtt.ini
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
