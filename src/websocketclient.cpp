@@ -31,7 +31,7 @@ WebSocketClient::WebSocketClient(const Deconz2MQTTConfig &config, QObject *paren
 
 void WebSocketClient::onTextMessageReceived(const QString &message)
 {
-    QTextStream(stdout) << "Message received: " << message << Qt::endl;
+    QTextStream(stdout) << "Websocket message received: " << message << Qt::endl;
 
     QJsonParseError err;
     QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8(), &err);
@@ -50,7 +50,7 @@ void WebSocketClient::onTextMessageReceived(const QString &message)
                 if (!uniqueid.isEmpty())
                 {
                     m_latestdata[uniqueid].insert(map);
-                    const QVariantMap attr = map.value("attr").toMap();
+                    const QVariantMap attr = m_latestdata[uniqueid].value("attr").toMap();
                     const QString type = attr.value("type").toString();
                     if (!type.isEmpty())
                     {

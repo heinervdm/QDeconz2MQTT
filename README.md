@@ -3,7 +3,7 @@ QDeconz2MQTT publishes deconz events to a MQTT broker.
 It is publiched under the GPL3.0+ license.
 
 Currently only sensor events are supported and the state part of the events is forwarded to to MQTT topic:
-  deconz/_uniqueid_/state
+  deconz/_type_/_uniqueid_
 
 The application expects a config file in INI format, as described in section [Configuration](#Configuration).
 If no `--config` Option is given, the INI file is expected in the same directory as the binary,

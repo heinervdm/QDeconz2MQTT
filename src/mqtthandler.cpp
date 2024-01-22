@@ -58,7 +58,10 @@ MqttHandler::MqttHandler(const Deconz2MQTTConfig &config, const QString &topic, 
 
 void MqttHandler::handleMessage(const QString & uniqueid, const QString &type, const QVariant &msgContent)
 {
-    m_client.publish(QMqttTopicName(QString("deconz/%1/%2").arg(type, uniqueid)), QJsonDocument::fromVariant(msgContent).toJson());
+    const QByteArray json = QJsonDocument::fromVariant(msgContent).toJson(QJsonDocument::Compact);
+    const QMqttTopicName topic = QMqttTopicName(QString("deconz/%1/%2").arg(type, uniqueid));
+    QTextStream(stdout) << "Publish message: " << json << ", Topic: " << topic.name() << Qt::endl;
+    m_client.publish(topic, json);
 }
 
 void MqttHandler::subscribe()
