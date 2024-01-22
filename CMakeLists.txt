@@ -26,6 +26,10 @@ endfunction()
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core WebSockets Mqtt)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core WebSockets Mqtt)
 
+if(Qt${QT_VERSION_MAJOR}_VERSION LESS 5.15)
+    MESSAGE(FATAL_ERROR "Minimum supported Qt version: 5.15.")
+endif()
+
 add_executable(${PROJECT_NAME}
   src/main.cpp
   src/websocketclient.h src/websocketclient.cpp

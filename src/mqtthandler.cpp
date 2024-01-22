@@ -40,6 +40,8 @@ MqttHandler::MqttHandler(const Deconz2MQTTConfig &config, const QString &topic, 
         m_client.setPassword(config.mqttPassword());
     }
 
+    m_client.setWillRetain(config.mqttRetain());
+
     if (config.mqttUseTls())
     {
         QSslConfiguration sslconfig;
@@ -54,34 +56,9 @@ MqttHandler::MqttHandler(const Deconz2MQTTConfig &config, const QString &topic, 
     }
 }
 
-void MqttHandler::handleMessage(const QVariant &msgContent)
+void MqttHandler::handleMessage(const QString & uniqueid, const QString &type, const QVariant &msgContent)
 {
-    if (msgContent.type() == QVariant::Map)
-    {
-        QVariantMap map = msgContent.toMap();
-        QString role = map.value("r").toString();
-        QString type = map.value("t").toString();
-        QString event = map.value("e").toString();
-        if (event == "changed" && type == "event" && role == "sensors")
-        {
-            QString uniqueid = map.value("uniqueid").toString();
-            if (map.contains("state"))
-            {
-                QVariant state = map.value("state");
-
-                QMqttTopicName topic(QString("deconz/%1/state").arg(uniqueid));
-                m_client.publish(topic, QJsonDocument::fromVariant(state).toJson());
-            }
-        }
-        else
-        {
-            QTextStream(stderr) << "Json error: message does not contain: r = sensors, t = event and e = changed" << Qt::endl;
-        }
-    }
-    else
-    {
-        QTextStream(stderr) << "Json error: message is not a QVariantMap" << Qt::endl;
-    }
+    m_client.publish(QMqttTopicName(QString("deconz/%1/%2").arg(type, uniqueid)), QJsonDocument::fromVariant(msgContent).toJson());
 }
 
 void MqttHandler::subscribe()

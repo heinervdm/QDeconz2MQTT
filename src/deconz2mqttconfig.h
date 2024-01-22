@@ -39,6 +39,7 @@ public:
     const QString & mqttPassword() const { return m_mqttPassword; }
     QMqttClient::ProtocolVersion mqttVersion() const { return m_mqttVersion; }
     bool mqttUseTls() const { return m_mqttUseTls; }
+    bool mqttRetain() const { return m_mqttRetain; }
 
 private:
     QSettings * m_settings;
@@ -50,6 +51,7 @@ private:
     QString m_mqttPassword;
     QMqttClient::ProtocolVersion m_mqttVersion = QMqttClient::MQTT_3_1;
     bool m_mqttUseTls = false;
+    bool m_mqttRetain = false;
 };
 
 #endif // DECONZ2MQTTCONFIG_H

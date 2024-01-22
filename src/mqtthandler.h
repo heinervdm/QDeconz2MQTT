@@ -37,7 +37,7 @@ signals:
     void errorOccured(QMqttClient::ClientError error);
 
 public slots:
-    void handleMessage(const QVariant &msgContent);
+    void handleMessage(const QString &uniqueid, const QString &type, const QVariant &msgContent);
 
 private slots:
     void subscribe();

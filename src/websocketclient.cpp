@@ -37,10 +37,43 @@ void WebSocketClient::onTextMessageReceived(const QString &message)
     QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8(), &err);
     if (!doc.isNull())
     {
-        emit messageReceived(doc.toVariant());
+        QVariant var = doc.toVariant();
+        if (var.type() == QVariant::Map)
+        {
+            QVariantMap map = var.toMap();
+            QString role = map.value("r").toString();
+            QString t = map.value("t").toString();
+            QString event = map.value("e").toString();
+            if (event == "changed" && t == "event" && role == "sensors")
+            {
+                const QString uniqueid = map.value("uniqueid").toString();
+                if (!uniqueid.isEmpty())
+                {
+                    m_latestdata[uniqueid].insert(map);
+                    const QVariantMap attr = map.value("attr").toMap();
+                    const QString type = attr.value("type").toString();
+                    if (!type.isEmpty())
+                    {
+                        emit messageReceived(uniqueid, type, m_latestdata[uniqueid]);
+                    }
+                }
+                else
+                {
+                    QTextStream(stderr) << "Json error: message does not contain a uniqueid" << Qt::endl;
+                }
+            }
+            else
+            {
+                QTextStream(stderr) << "Json error: message does not contain: r = sensors, t = event and e = changed" << Qt::endl;
+            }
+        }
+        else
+        {
+            QTextStream(stderr) << "Json error: message is not a QVariantMap" << Qt::endl;
+        }
     }
     else
     {
-        QTextStream(stderr) << "Error while parsing message: " << message << ", Error message: " << err.errorString() << Qt::endl;
+        QTextStream(stderr) << "Json error: error while parsing message: " << message << ", Error message: " << err.errorString() << Qt::endl;
     }
 }

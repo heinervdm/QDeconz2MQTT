@@ -33,13 +33,14 @@ public:
     
 signals:
     void closed();
-    void messageReceived(const QVariant & data);
+    void messageReceived(const QString & uniqueid, const QString & type, const QVariant & data);
     
 private slots:
     void onTextMessageReceived(const QString & message);
     
 private:
     QWebSocket m_webSocket;
+    QMap<QString, QVariantMap> m_latestdata; ///< uniqueid, JSON as QVariantMap
 };
 
 #endif // WEBSOCKETCLIENT_H

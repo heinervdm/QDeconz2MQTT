@@ -75,6 +75,7 @@ bool Deconz2MQTTConfig::parse(const QString &configFile)
         return false;
     }
     m_mqttUseTls = m_settings->value("usetls", false).toBool();
+    m_mqttRetain = m_settings->value("retain", false).toBool();
     m_settings->endGroup();
 
     return true;

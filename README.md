@@ -37,6 +37,7 @@ The MQTT connection parameters are given by the _hostname_, _port_, _username_, 
 If no authentification is needed, _username_ and _password_ need to be empty.
 The _version_ attribute excepts three values: 3 for MQTT 3.1, 4 for MQTT 3.1.1 and 5 for MQTT 5.0.
 If the MQTT connection is TLS encrypted the _usetls_ attribute should be set to true, false otherwise.
+If the _retain_ attribute is True, the reain bit will be set during publisching the data.
 
 ```INI
 [mqtt]
@@ -46,6 +47,7 @@ username=USER
 password=PASSWORT
 version=3
 usetls=true
+retain=false
 
 [websocket]
 url=ws://example.com:443
