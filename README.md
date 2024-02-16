@@ -1,8 +1,8 @@
 # QDeconz2MQTT
 QDeconz2MQTT publishes deconz events to a MQTT broker.
-It is publiched under the GPL3.0+ license.
+It is published under the GPL3.0+ license.
 
-Currently only sensor events are supported and the state part of the events is forwarded to to MQTT topic:
+Currently only sensor events are supported and the state part of the events is forwarded to MQTT topic:
   deconz/_type_/_uniqueid_
 
 The application expects a config file in INI format, as described in section [Configuration](#Configuration).
@@ -37,7 +37,7 @@ The MQTT connection parameters are given by the _hostname_, _port_, _username_, 
 If no authentification is needed, _username_ and _password_ need to be empty.
 The _version_ attribute excepts three values: 3 for MQTT 3.1, 4 for MQTT 3.1.1 and 5 for MQTT 5.0.
 If the MQTT connection is TLS encrypted the _usetls_ attribute should be set to true, false otherwise.
-If the _retain_ attribute is True, the reain bit will be set during publisching the data.
+If the _retain_ attribute is True, the retain bit will be set during publishing the data.
 
 ```INI
 [mqtt]
