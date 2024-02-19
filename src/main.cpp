@@ -1,4 +1,4 @@
-/**
+/*
     QDeconz2MQTT publishes deconz events to a MQTT broker.
     Copyright (C) 2024  Thomas Zimmermann
 
@@ -15,6 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <QCoreApplication>
 #include <QCommandLineParser>
