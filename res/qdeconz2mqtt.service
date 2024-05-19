@@ -2,10 +2,14 @@
 Description=QDeconz2MQTT publishes deconz events to a MQTT broker.
 Wants=network-online.target
 After=network-online.target
+StartLimitIntervalSec=200
+StartLimitInterval=200
+StartLimitBurst=3
 
 [Service]
 ExecStart=/usr/bin/QDeconz2MQTT --config /etc/qdeconz2mqtt.ini
 Restart=on-failure
+RestartSec=90
 
 [Install]
 WantedBy=multi-user.target
