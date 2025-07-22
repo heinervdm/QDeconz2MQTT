@@ -20,78 +20,78 @@
 #include "mqtthandler.h"
 
 #include <QCoreApplication>
-#include <QTextStream>
 #include <QJsonDocument>
+#include <QTextStream>
 
-MqttHandler::MqttHandler(const Deconz2MQTTConfig &config, const QString &topic, QObject *parent)
-    : QObject(parent)
-    , m_topic(topic)
-{
-    m_client.setProtocolVersion(config.mqttVersion());
-    m_client.setHostname(config.mqttHostname());
-    m_client.setPort(config.mqttPort());
-    QMqttConnectionProperties props;
-    m_client.setConnectionProperties(props);
-    connect(&m_client, &QMqttClient::errorChanged, this, &MqttHandler::onConnectionError);
-    //connect(&m_client, &QMqttClient::connected, this, &MqttSubscription::subscribe);
+MqttHandler::MqttHandler(const Deconz2MQTTConfig &config, const QString &topic,
+                         QObject *parent)
+    : QObject(parent), m_topic(topic) {
+  m_client.setProtocolVersion(config.mqttVersion());
+  m_client.setHostname(config.mqttHostname());
+  m_client.setPort(config.mqttPort());
+  QMqttConnectionProperties props;
+  m_client.setConnectionProperties(props);
+  connect(&m_client, &QMqttClient::errorChanged, this,
+          &MqttHandler::onConnectionError);
+  // connect(&m_client, &QMqttClient::connected, this,
+  // &MqttSubscription::subscribe);
 
-    if (!config.mqttUsername().isEmpty() && !config.mqttPassword().isEmpty())
-    {
-        m_client.setUsername(config.mqttUsername());
-        m_client.setPassword(config.mqttPassword());
-    }
+  if (!config.mqttUsername().isEmpty() && !config.mqttPassword().isEmpty()) {
+    m_client.setUsername(config.mqttUsername());
+    m_client.setPassword(config.mqttPassword());
+  }
 
-    m_client.setWillRetain(config.mqttRetain());
+  m_client.setWillRetain(config.mqttRetain());
 
-    if (config.mqttUseTls())
-    {
-        QSslConfiguration sslconfig;
-        sslconfig.defaultConfiguration();
-        sslconfig.setProtocol(QSsl::TlsV1_2);
-        sslconfig.setPeerVerifyMode(QSslSocket::VerifyNone);
-        m_client.connectToHostEncrypted(sslconfig);
-    }
-    else
-    {
-        m_client.connectToHost();
-    }
+  if (config.mqttUseTls()) {
+    QSslConfiguration sslconfig;
+    sslconfig.defaultConfiguration();
+    sslconfig.setProtocol(QSsl::TlsV1_2);
+    sslconfig.setPeerVerifyMode(QSslSocket::VerifyNone);
+    m_client.connectToHostEncrypted(sslconfig);
+  } else {
+    m_client.connectToHost();
+  }
 }
 
-void MqttHandler::handleMessage(const QString & uniqueid, const QString &type, const QVariant &msgContent)
-{
-    const QByteArray json = QJsonDocument::fromVariant(msgContent).toJson(QJsonDocument::Compact);
-    const QMqttTopicName topic = QMqttTopicName(QString("deconz/%1/%2").arg(type, uniqueid));
-    QTextStream(stdout) << "Publish message: " << json << ", Topic: " << topic.name() << Qt::endl;
-    m_client.publish(topic, json);
+void MqttHandler::handleMessage(const QString &uniqueid, const QString &type,
+                                const QVariant &msgContent) {
+  const QByteArray json =
+      QJsonDocument::fromVariant(msgContent).toJson(QJsonDocument::Compact);
+  const QMqttTopicName topic =
+      QMqttTopicName(QString("deconz/%1/%2").arg(type, uniqueid));
+  QTextStream(stdout) << "Publish message: " << json
+                      << ", Topic: " << topic.name() << Qt::endl;
+  m_client.publish(topic, json, 0, true);
 }
 
-void MqttHandler::subscribe()
-{
-    QTextStream(stdout) << "MQTT connection established" << Qt::endl;
+void MqttHandler::subscribe() {
+  QTextStream(stdout) << "MQTT connection established" << Qt::endl;
 
-    m_subscription = m_client.subscribe(m_topic);
-    if (!m_subscription) {
-        qDebug() << "Failed to subscribe to " << m_topic;
-        emit errorOccured(m_client.error());
-    }
+  m_subscription = m_client.subscribe(m_topic);
+  if (!m_subscription) {
+    qDebug() << "Failed to subscribe to " << m_topic;
+    emit errorOccured(m_client.error());
+  }
 
-    connect(m_subscription, &QMqttSubscription::stateChanged, this,
-            [](QMqttSubscription::SubscriptionState s) {
-        QTextStream(stdout) << "Subscription state changed: " << s << Qt::endl;
-    });
+  connect(m_subscription, &QMqttSubscription::stateChanged, this,
+          [](QMqttSubscription::SubscriptionState s) {
+            QTextStream(stdout)
+                << "Subscription state changed: " << s << Qt::endl;
+          });
 
-    connect(m_subscription, &QMqttSubscription::messageReceived, this,
-            [this](QMqttMessage msg) {
-//        handleMessage(msg.payload());
-        QTextStream(stdout) << "MQTT message received: " << msg.topic().name() << ", " << msg.payload() << Qt::endl;
-    });
+  connect(m_subscription, &QMqttSubscription::messageReceived, this,
+          [](QMqttMessage msg) {
+            // handleMessage(msg.payload());
+            QTextStream(stdout)
+                << "MQTT message received: " << msg.topic().name() << ", "
+                << msg.payload() << Qt::endl;
+          });
 }
 
-void MqttHandler::onConnectionError(QMqttClient::ClientError error)
-{
-    if (error != QMqttClient::NoError)
-    {
-        QTextStream(stderr) << "MQTT error: " << error << Qt::endl;
-        emit errorOccured(error);
-    }
+void MqttHandler::onConnectionError(QMqttClient::ClientError error) {
+  if (error != QMqttClient::NoError) {
+    QTextStream(stderr) << "MQTT error: " << error << Qt::endl;
+    emit errorOccured(error);
+  }
 }
