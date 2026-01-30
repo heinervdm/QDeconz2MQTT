@@ -80,8 +80,7 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
               QVariant apivar = apidoc.toVariant();
               if (apivar.type() == QVariant::Map) {
                 QVariantMap apimap = apivar.toMap();
-                const QVariantMap attr = apimap.value("attr").toMap();
-                const QString type = attr.value("type").toString();
+                const QString type = apimap.value("type").toString();
                 if (!type.isEmpty()) {
                   emit messageReceived(uniqueid, type, apimap);
                 } else {
