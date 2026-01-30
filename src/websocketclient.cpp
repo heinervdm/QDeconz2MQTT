@@ -114,7 +114,18 @@ void WebSocketClient::initSensors(const QUrl &apiurl) {
               QTextStream(stderr)
                   << "Json error: api message has no type" << Qt::endl;
             }
+          } else {
+            QTextStream(stderr)
+                << "Json error: api message value has no unique id:"
+                << QJsonDocument::fromVariant(v.value()).toJson(
+                       QJsonDocument::Compact)
+                << Qt::endl;
           }
+        } else {
+          QTextStream(stderr) << "Json error: api message value is not a map:"
+                              << QJsonDocument::fromVariant(v.value()).toJson(
+                                     QJsonDocument::Compact)
+                              << Qt::endl;
         }
       }
     } else {
