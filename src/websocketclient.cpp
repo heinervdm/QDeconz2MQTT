@@ -111,6 +111,10 @@ void WebSocketClient::initSensors(const QUrl &apiurl) {
           QVariantMap sensor = v->toMap();
           const QString uniqueid = sensor.value("uniqueid").toString();
           if (!uniqueid.isEmpty()) {
+            QVariantMap attr;
+            attr["name"] = sensor.value("name").toString();
+            attr["lastseen"] = sensor.value("lastseen").toString();
+            sensor.insert("attr", attr);
             m_latestdata[uniqueid].insert(sensor);
             const QString type = sensor.value("type").toString();
             if (!type.isEmpty()) {
