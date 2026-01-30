@@ -19,65 +19,69 @@
 
 #include "deconz2mqttconfig.h"
 
-Deconz2MQTTConfig::Deconz2MQTTConfig()
-    : m_settings(nullptr)
-{}
+Deconz2MQTTConfig::Deconz2MQTTConfig() : m_settings(nullptr) {}
 
-bool Deconz2MQTTConfig::parse(const QString &configFile)
-{
-    m_settings = new QSettings(configFile, QSettings::IniFormat);
+bool Deconz2MQTTConfig::parse(const QString &configFile) {
+  m_settings = new QSettings(configFile, QSettings::IniFormat);
 
-    m_settings->beginGroup("websocket");
-    m_websocketUrl = m_settings->value("url").toUrl();
-    if (!m_websocketUrl.isValid())
-    {
-        m_lastError = "Error: Invalid websocket URL: " + m_settings->value("url").toString();
-        m_settings->deleteLater();
-        m_settings = nullptr;
-        return false;
-    }
-    if ( m_websocketUrl.scheme() != "ws")
-    {
-        m_lastError = "Error: Invalid websocket URL scheme, must be: ws (" + m_settings->value("url").toString() + ")";
-        m_settings->deleteLater();
-        m_settings = nullptr;
-        return false;
-    }
-    m_settings->endGroup();
+  m_settings->beginGroup("websocket");
+  m_websocketUrl = m_settings->value("url").toUrl();
+  if (!m_websocketUrl.isValid()) {
+    m_lastError =
+        "Error: Invalid websocket URL: " + m_settings->value("url").toString();
+    m_settings->deleteLater();
+    m_settings = nullptr;
+    return false;
+  }
+  if (m_websocketUrl.scheme() != "ws") {
+    m_lastError = "Error: Invalid websocket URL scheme, must be: ws (" +
+                  m_settings->value("url").toString() + ")";
+    m_settings->deleteLater();
+    m_settings = nullptr;
+    return false;
+  }
+  m_restApiPRefix = m_settings->value("restapi").toUrl();
+  if (!m_restApiPRefix.isValid()) {
+    m_lastError = "Error: Invalid rest API URL: " +
+                  m_settings->value("restapi").toString();
+    m_settings->deleteLater();
+    m_settings = nullptr;
+    return false;
+  }
+  m_settings->endGroup();
 
-    m_settings->beginGroup("mqtt");
-    m_mqttHostname = m_settings->value("hostname").toString();
-    if (m_mqttHostname.isEmpty())
-    {
-        m_lastError = "Error: hostname is empty!";
-        m_settings->deleteLater();
-        m_settings = nullptr;
-        return false;
-    }
-    m_mqttPort = m_settings->value("port", 8883).toUInt();
-    m_mqttUsername = m_settings->value("username").toString();
-    m_mqttPassword = m_settings->value("password").toString();
-    int version = m_settings->value("version", 3).toInt();
-    switch (version)
-    {
-    case 3:
-        m_mqttVersion = QMqttClient::MQTT_3_1;
-        break;
-    case 4:
-        m_mqttVersion = QMqttClient::MQTT_3_1_1;
-        break;
-    case 5:
-        m_mqttVersion = QMqttClient::MQTT_5_0;
-        break;
-    default:
-        m_lastError = "Error: invalid MQTT version: " + m_settings->value("version").toString();
-        m_settings->deleteLater();
-        m_settings = nullptr;
-        return false;
-    }
-    m_mqttUseTls = m_settings->value("usetls", false).toBool();
-    m_mqttRetain = m_settings->value("retain", false).toBool();
-    m_settings->endGroup();
+  m_settings->beginGroup("mqtt");
+  m_mqttHostname = m_settings->value("hostname").toString();
+  if (m_mqttHostname.isEmpty()) {
+    m_lastError = "Error: hostname is empty!";
+    m_settings->deleteLater();
+    m_settings = nullptr;
+    return false;
+  }
+  m_mqttPort = m_settings->value("port", 8883).toUInt();
+  m_mqttUsername = m_settings->value("username").toString();
+  m_mqttPassword = m_settings->value("password").toString();
+  int version = m_settings->value("version", 3).toInt();
+  switch (version) {
+  case 3:
+    m_mqttVersion = QMqttClient::MQTT_3_1;
+    break;
+  case 4:
+    m_mqttVersion = QMqttClient::MQTT_3_1_1;
+    break;
+  case 5:
+    m_mqttVersion = QMqttClient::MQTT_5_0;
+    break;
+  default:
+    m_lastError = "Error: invalid MQTT version: " +
+                  m_settings->value("version").toString();
+    m_settings->deleteLater();
+    m_settings = nullptr;
+    return false;
+  }
+  m_mqttUseTls = m_settings->value("usetls", false).toBool();
+  m_mqttRetain = m_settings->value("retain", false).toBool();
+  m_settings->endGroup();
 
-    return true;
+  return true;
 }

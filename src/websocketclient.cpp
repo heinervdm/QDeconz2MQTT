@@ -19,7 +19,10 @@
 
 #include "websocketclient.h"
 
+#include <QEventLoop>
 #include <QJsonDocument>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QTextStream>
 
 WebSocketClient::WebSocketClient(const Deconz2MQTTConfig &config,
@@ -30,6 +33,7 @@ WebSocketClient::WebSocketClient(const Deconz2MQTTConfig &config,
   connect(&m_webSocket, &QWebSocket::textMessageReceived, this,
           &WebSocketClient::onTextMessageReceived);
   m_webSocket.open(config.websocketUrl());
+  m_restAPIPrefix = config.restApiPrefix();
 }
 
 void WebSocketClient::onTextMessageReceived(const QString &message) {
@@ -57,6 +61,31 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
           const QString type = attr.value("type").toString();
           if (!type.isEmpty()) {
             emit messageReceived(uniqueid, type, m_latestdata[uniqueid]);
+          } else {
+            QNetworkAccessManager nm;
+            QUrl url = m_restAPIPrefix;
+            QString path = url.path();
+            path += "sensors/" + map.value("id").toString();
+            url.setPath(path);
+            QNetworkRequest req(url);
+            QNetworkReply *reply = nm.get(req);
+            QEventLoop event_loop;
+            connect(reply, &QNetworkReply::finished, &event_loop,
+                    &QEventLoop::quit);
+            event_loop.exec();
+            QByteArray data = reply->readAll();
+            QJsonDocument apidoc = QJsonDocument::fromJson(data, &err);
+            if (!doc.isNull()) {
+              QVariant apivar = apidoc.toVariant();
+              if (apivar.type() == QVariant::Map) {
+                QVariantMap apimap = apivar.toMap();
+                const QVariantMap attr = apimap.value("attr").toMap();
+                const QString type = attr.value("type").toString();
+                if (!type.isEmpty()) {
+                  emit messageReceived(uniqueid, type, apimap);
+                }
+              }
+            }
           }
         } else {
           QTextStream(stderr)

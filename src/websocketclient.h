@@ -21,27 +21,29 @@
 #define WEBSOCKETCLIENT_H
 
 #include <QObject>
-#include <QWebSocket>
 #include <QVariant>
+#include <QWebSocket>
 
 #include "deconz2mqttconfig.h"
 
-class WebSocketClient : public QObject
-{
-    Q_OBJECT
+class WebSocketClient : public QObject {
+  Q_OBJECT
 public:
-    explicit WebSocketClient(const Deconz2MQTTConfig &config, QObject *parent = nullptr);
-    
+  explicit WebSocketClient(const Deconz2MQTTConfig &config,
+                           QObject *parent = nullptr);
+
 signals:
-    void closed();
-    void messageReceived(const QString & uniqueid, const QString & type, const QVariant & data);
-    
+  void closed();
+  void messageReceived(const QString &uniqueid, const QString &type,
+                       const QVariant &data);
+
 private slots:
-    void onTextMessageReceived(const QString & message);
-    
+  void onTextMessageReceived(const QString &message);
+
 private:
-    QWebSocket m_webSocket;
-    QMap<QString, QVariantMap> m_latestdata; ///< uniqueid, JSON as QVariantMap
+  QWebSocket m_webSocket;
+  QMap<QString, QVariantMap> m_latestdata; ///< uniqueid, JSON as QVariantMap
+  QUrl m_restAPIPrefix;
 };
 
 #endif // WEBSOCKETCLIENT_H

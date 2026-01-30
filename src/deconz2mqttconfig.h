@@ -20,39 +20,40 @@
 #ifndef DECONZ2MQTTCONFIG_H
 #define DECONZ2MQTTCONFIG_H
 
+#include <QMqttClient>
 #include <QSettings>
 #include <QUrl>
-#include <QMqttClient>
 
-class Deconz2MQTTConfig
-{
+class Deconz2MQTTConfig {
 public:
-    explicit Deconz2MQTTConfig();
+  explicit Deconz2MQTTConfig();
 
-    bool parse(const QString & configFile);
+  bool parse(const QString &configFile);
 
-    bool isValid() const { return m_settings != nullptr; }
-    const QString & lastError() const { return m_lastError; }
-    const QUrl & websocketUrl() const { return m_websocketUrl; }
-    const QString & mqttHostname() const { return m_mqttHostname; }
-    quint16 mqttPort() const { return m_mqttPort; }
-    const QString & mqttUsername() const { return m_mqttUsername; }
-    const QString & mqttPassword() const { return m_mqttPassword; }
-    QMqttClient::ProtocolVersion mqttVersion() const { return m_mqttVersion; }
-    bool mqttUseTls() const { return m_mqttUseTls; }
-    bool mqttRetain() const { return m_mqttRetain; }
+  bool isValid() const { return m_settings != nullptr; }
+  const QString &lastError() const { return m_lastError; }
+  const QUrl &websocketUrl() const { return m_websocketUrl; }
+  const QUrl &restApiPrefix() const { return m_restApiPRefix; }
+  const QString &mqttHostname() const { return m_mqttHostname; }
+  quint16 mqttPort() const { return m_mqttPort; }
+  const QString &mqttUsername() const { return m_mqttUsername; }
+  const QString &mqttPassword() const { return m_mqttPassword; }
+  QMqttClient::ProtocolVersion mqttVersion() const { return m_mqttVersion; }
+  bool mqttUseTls() const { return m_mqttUseTls; }
+  bool mqttRetain() const { return m_mqttRetain; }
 
 private:
-    QSettings * m_settings;
-    QString m_lastError;
-    QUrl m_websocketUrl;
-    QString m_mqttHostname;
-    quint16 m_mqttPort = 8883;
-    QString m_mqttUsername;
-    QString m_mqttPassword;
-    QMqttClient::ProtocolVersion m_mqttVersion = QMqttClient::MQTT_3_1;
-    bool m_mqttUseTls = false;
-    bool m_mqttRetain = false;
+  QSettings *m_settings;
+  QString m_lastError;
+  QUrl m_websocketUrl;
+  QUrl m_restApiPRefix;
+  QString m_mqttHostname;
+  quint16 m_mqttPort = 8883;
+  QString m_mqttUsername;
+  QString m_mqttPassword;
+  QMqttClient::ProtocolVersion m_mqttVersion = QMqttClient::MQTT_3_1;
+  bool m_mqttUseTls = false;
+  bool m_mqttRetain = false;
 };
 
 #endif // DECONZ2MQTTCONFIG_H
