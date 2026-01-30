@@ -33,7 +33,7 @@ WebSocketClient::WebSocketClient(const Deconz2MQTTConfig &config,
   connect(&m_webSocket, &QWebSocket::textMessageReceived, this,
           &WebSocketClient::onTextMessageReceived);
   m_webSocket.open(config.websocketUrl());
-  m_restAPIPrefix = config.restApiPrefix();
+  initSensors(config.restApiPrefix());
 }
 
 void WebSocketClient::onTextMessageReceived(const QString &message) {
@@ -61,43 +61,6 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
           const QString type = attr.value("type").toString();
           if (!type.isEmpty()) {
             emit messageReceived(uniqueid, type, m_latestdata[uniqueid]);
-          } else {
-            QNetworkAccessManager nm;
-            QUrl url = m_restAPIPrefix;
-            QString path = url.path();
-            path += "sensors/" + map.value("id").toString();
-            url.setPath(path);
-            QNetworkRequest req(url);
-            QNetworkReply *reply = nm.get(req);
-            QEventLoop event_loop;
-            connect(reply, &QNetworkReply::finished, &event_loop,
-                    &QEventLoop::quit);
-            event_loop.exec();
-            QByteArray data = reply->readAll();
-            QTextStream(stdout) << "Api request data: " << data << Qt::endl;
-            QJsonDocument apidoc = QJsonDocument::fromJson(data, &err);
-            if (!apidoc.isNull()) {
-              QVariant apivar = apidoc.toVariant();
-              if (apivar.type() == QVariant::Map) {
-                QVariantMap apimap = apivar.toMap();
-                m_latestdata[uniqueid].insert(apimap);
-                const QString type = apimap.value("type").toString();
-                if (!type.isEmpty()) {
-                  emit messageReceived(uniqueid, type, apimap);
-                } else {
-                  QTextStream(stderr)
-                      << "Json error: api message has no type" << Qt::endl;
-                }
-              } else {
-                QTextStream(stderr)
-                    << "Json error: api message is not a QVariantMap"
-                    << Qt::endl;
-              }
-            } else {
-              QTextStream(stderr)
-                  << "Json error: error while parsing api message: " << data
-                  << ", Error message: " << err.errorString() << Qt::endl;
-            }
           }
         } else {
           QTextStream(stderr)
@@ -115,6 +78,50 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
   } else {
     QTextStream(stderr) << "Json error: error while parsing message: "
                         << message << ", Error message: " << err.errorString()
+                        << Qt::endl;
+  }
+}
+
+void WebSocketClient::initSensors(const QUrl &apiurl) {
+  QNetworkAccessManager nm;
+  QUrl url = apiurl;
+  QString path = url.path();
+  path += "sensors/";
+  url.setPath(path);
+  QNetworkRequest req(url);
+  QNetworkReply *reply = nm.get(req);
+  QEventLoop event_loop;
+  connect(reply, &QNetworkReply::finished, &event_loop, &QEventLoop::quit);
+  event_loop.exec();
+  QByteArray data = reply->readAll();
+  QTextStream(stdout) << "Api request data: " << data << Qt::endl;
+  QJsonParseError err;
+  QJsonDocument apidoc = QJsonDocument::fromJson(data, &err);
+  if (!apidoc.isNull()) {
+    QVariant apivar = apidoc.toVariant();
+    if (apivar.type() == QVariant::Map) {
+      QVariantMap apimap = apivar.toMap();
+      for (auto kv = apimap.constKeyValueBegin();
+           kv != apimap.constKeyValueEnd(); ++kv) {
+        const QString uniqueid = apimap.value("uniqueid").toString();
+        if (!uniqueid.isEmpty()) {
+          m_latestdata[uniqueid].insert(apimap);
+          const QString type = apimap.value("type").toString();
+          if (!type.isEmpty()) {
+            emit messageReceived(uniqueid, type, apimap);
+          } else {
+            QTextStream(stderr)
+                << "Json error: api message has no type" << Qt::endl;
+          }
+        }
+      }
+    } else {
+      QTextStream(stderr) << "Json error: api message is not a QVariantMap"
+                          << Qt::endl;
+    }
+  } else {
+    QTextStream(stderr) << "Json error: error while parsing api message: "
+                        << data << ", Error message: " << err.errorString()
                         << Qt::endl;
   }
 }

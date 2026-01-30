@@ -41,9 +41,11 @@ private slots:
   void onTextMessageReceived(const QString &message);
 
 private:
+  void initSensors(const QUrl &apiurl);
+
+private:
   QWebSocket m_webSocket;
   QMap<QString, QVariantMap> m_latestdata; ///< uniqueid, JSON as QVariantMap
-  QUrl m_restAPIPrefix;
 };
 
 #endif // WEBSOCKETCLIENT_H
