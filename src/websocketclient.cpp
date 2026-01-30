@@ -101,17 +101,19 @@ void WebSocketClient::initSensors(const QUrl &apiurl) {
     QVariant apivar = apidoc.toVariant();
     if (apivar.type() == QVariant::Map) {
       QVariantMap apimap = apivar.toMap();
-      for (auto kv = apimap.constKeyValueBegin();
-           kv != apimap.constKeyValueEnd(); ++kv) {
-        const QString uniqueid = apimap.value("uniqueid").toString();
-        if (!uniqueid.isEmpty()) {
-          m_latestdata[uniqueid].insert(apimap);
-          const QString type = apimap.value("type").toString();
-          if (!type.isEmpty()) {
-            emit messageReceived(uniqueid, type, apimap);
-          } else {
-            QTextStream(stderr)
-                << "Json error: api message has no type" << Qt::endl;
+      for (auto v = apimap.constBegin(); v != apimap.constEnd(); ++v) {
+        if (v->type() == QVariant::Map) {
+          QVariantMap sensor = v->toMap();
+          const QString uniqueid = sensor.value("uniqueid").toString();
+          if (!uniqueid.isEmpty()) {
+            m_latestdata[uniqueid].insert(sensor);
+            const QString type = sensor.value("type").toString();
+            if (!type.isEmpty()) {
+              emit messageReceived(uniqueid, type, sensor);
+            } else {
+              QTextStream(stderr)
+                  << "Json error: api message has no type" << Qt::endl;
+            }
           }
         }
       }
