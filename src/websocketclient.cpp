@@ -74,6 +74,7 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
                     &QEventLoop::quit);
             event_loop.exec();
             QByteArray data = reply->readAll();
+            QTextStream(stdout) << "Api request data: " << data << Qt::endl;
             QJsonDocument apidoc = QJsonDocument::fromJson(data, &err);
             if (!doc.isNull()) {
               QVariant apivar = apidoc.toVariant();
