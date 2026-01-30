@@ -31,6 +31,7 @@ class WebSocketClient : public QObject {
 public:
   explicit WebSocketClient(const Deconz2MQTTConfig &config,
                            QObject *parent = nullptr);
+  void initSensors(const QUrl &apiurl);
 
 signals:
   void closed();
@@ -39,9 +40,6 @@ signals:
 
 private slots:
   void onTextMessageReceived(const QString &message);
-
-private:
-  void initSensors(const QUrl &apiurl);
 
 private:
   QWebSocket m_webSocket;

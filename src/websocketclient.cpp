@@ -33,7 +33,6 @@ WebSocketClient::WebSocketClient(const Deconz2MQTTConfig &config,
   connect(&m_webSocket, &QWebSocket::textMessageReceived, this,
           &WebSocketClient::onTextMessageReceived);
   m_webSocket.open(config.websocketUrl());
-  initSensors(config.restApiPrefix());
 }
 
 void WebSocketClient::onTextMessageReceived(const QString &message) {
@@ -101,6 +100,12 @@ void WebSocketClient::initSensors(const QUrl &apiurl) {
     QVariant apivar = apidoc.toVariant();
     if (apivar.type() == QVariant::Map) {
       QVariantMap apimap = apivar.toMap();
+      if (apimap.size() == 0) {
+        QTextStream(stderr)
+            << "Json error: api message has no sensors:"
+            << QJsonDocument::fromVariant(apimap).toJson(QJsonDocument::Compact)
+            << Qt::endl;
+      }
       for (auto v = apimap.constBegin(); v != apimap.constEnd(); ++v) {
         if (v->type() == QVariant::Map) {
           QVariantMap sensor = v->toMap();
