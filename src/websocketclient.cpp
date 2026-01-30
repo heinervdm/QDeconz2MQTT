@@ -76,7 +76,7 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
             QByteArray data = reply->readAll();
             QTextStream(stdout) << "Api request data: " << data << Qt::endl;
             QJsonDocument apidoc = QJsonDocument::fromJson(data, &err);
-            if (!doc.isNull()) {
+            if (!apidoc.isNull()) {
               QVariant apivar = apidoc.toVariant();
               if (apivar.type() == QVariant::Map) {
                 QVariantMap apimap = apivar.toMap();
@@ -84,8 +84,19 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
                 const QString type = attr.value("type").toString();
                 if (!type.isEmpty()) {
                   emit messageReceived(uniqueid, type, apimap);
+                } else {
+                  QTextStream(stderr)
+                      << "Json error: api message has no type" << Qt::endl;
                 }
+              } else {
+                QTextStream(stderr)
+                    << "Json error: api message is not a QVariantMap"
+                    << Qt::endl;
               }
+            } else {
+              QTextStream(stderr)
+                  << "Json error: error while parsing api message: " << data
+                  << ", Error message: " << err.errorString() << Qt::endl;
             }
           }
         } else {
