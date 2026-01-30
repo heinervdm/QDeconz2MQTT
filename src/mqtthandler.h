@@ -20,33 +20,34 @@
 #ifndef MQTTSUBSCRIPTION_H
 #define MQTTSUBSCRIPTION_H
 
-#include <QObject>
 #include <QMqttClient>
 #include <QMqttSubscription>
+#include <QObject>
 #include <QUrl>
 #include <QVariant>
 
 #include "deconz2mqttconfig.h"
 
-class MqttHandler : public QObject
-{
-    Q_OBJECT
+class MqttHandler : public QObject {
+  Q_OBJECT
 public:
-    MqttHandler(const Deconz2MQTTConfig & config, const QString &topic, QObject *parent = nullptr);
+  MqttHandler(const Deconz2MQTTConfig &config, const QString &topic,
+              QObject *parent = nullptr);
 
 signals:
-    void errorOccured(QMqttClient::ClientError error);
+  void errorOccured(QMqttClient::ClientError error);
 
 public slots:
-    void handleMessage(const QString &uniqueid, const QString &type, const QVariant &msgContent);
+  void handleMessage(const QString &uniqueid, const QString &type,
+                     const QVariant &msgContent);
 
 private slots:
-    void subscribe();
-    void onConnectionError(QMqttClient::ClientError error);
+  void subscribe();
+  void onConnectionError(QMqttClient::ClientError error);
 
 private:
-    QMqttClient m_client;
-    QMqttSubscription *m_subscription;
-    QString m_topic;
+  QMqttClient m_client;
+  QMqttSubscription *m_subscription;
+  QString m_topic;
 };
 #endif // MQTTSUBSCRIPTION_H
