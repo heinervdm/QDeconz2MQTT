@@ -56,8 +56,7 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
               << QJsonDocument::fromVariant(m_latestdata[uniqueid])
                      .toJson(QJsonDocument::Compact)
               << Qt::endl;
-          const QVariantMap attr = m_latestdata[uniqueid].value("attr").toMap();
-          const QString type = attr.value("type").toString();
+          const QString type = m_latestdata[uniqueid].value("type").toString();
           if (!type.isEmpty()) {
             emit messageReceived(uniqueid, type, m_latestdata[uniqueid]);
           }
